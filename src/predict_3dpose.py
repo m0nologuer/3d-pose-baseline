@@ -551,7 +551,8 @@ def sample():
     #Create matrix float source across all timesteps
     matrix_list = [x for j in range(nsamples) for row in  matrices[j][index] for x in row]
     template.animations[i].sourceById[key].data = np.array(matrix_list)
-    print key, matrix_list
+    print key
+    print matrix_list
 
     #Set animation timing
     key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-input'
