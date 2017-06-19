@@ -554,7 +554,7 @@ def sample():
 
     #Set animation timing
     key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-input'
-    timings = [0.033333*j for j in range(len(matrices))]
+    timings = [0.0033333*j for j in range(len(matrices))]
     template.animations[i].sourceById[key].data = np.array(timings)
 
     #Set animation labels
