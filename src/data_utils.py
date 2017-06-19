@@ -159,11 +159,12 @@ def load_stacked_hourglass(data_dir, subjects, actions):
         # Walking is requested.
         if seqname.startswith( action ):
           print( fname )
+          fname = 'data/sh_output/S1/valid-example.h5'
           loaded_seqs = loaded_seqs + 1
 
           # Load the poses from the .h5 file
           with h5py.File( fname, 'r' ) as h5f:
-            poses = h5f['poses'][:]
+            poses = h5f['preds'][:]
 
             # Permute the loaded data to make it compatible with H36M
             poses = poses[:,SH_TO_GT_PERM,:]

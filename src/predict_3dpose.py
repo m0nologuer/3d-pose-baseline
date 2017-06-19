@@ -13,7 +13,9 @@ import time
 import h5py
 import copy
 
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
@@ -23,6 +25,8 @@ import viz
 import cameras
 import data_utils
 import linear_model
+
+from collada import *
 
 tf.app.flags.DEFINE_float("learning_rate", 1e-3, "Learning rate")
 tf.app.flags.DEFINE_float("dropout", 1, "Dropout keep probability. 1 means no dropout")
@@ -424,7 +428,7 @@ def sample():
     model = create_model(sess, actions, batch_size)
     print("Model loaded")
 
-    for key2d in test_set_2d.keys():
+    for key2d in test_set_2d.keys()[:1]:
 
       (subj, b, fname) = key2d
       print( "Subject: {}, action: {}, fname: {}".format(subj, b, fname) )
@@ -433,10 +437,13 @@ def sample():
       key3d = key2d if FLAGS.camera_frame else (subj, b, '{0}.h5'.format(fname.split('.')[0]))
       key3d = (subj, b, fname[:-3]) if (fname.endswith('-sh')) and FLAGS.camera_frame else key3d
 
-      enc_in  = test_set_2d[ key2d ]
+      enc_in  = test_set_2d[ key2d ][:1685]
       n2d, _ = enc_in.shape
       dec_out = test_set_3d[ key3d ]
       n3d, _ = dec_out.shape
+
+      print(enc_in.shape)
+      print(dec_out.shape)
       assert n2d == n3d
 
       # Split into about-same-size batches
@@ -489,43 +496,73 @@ def sample():
 
   # Grab a random batch to visualize
   enc_in, dec_out, poses3d = map( np.vstack, [enc_in, dec_out, poses3d] )
-  idx = np.random.permutation( enc_in.shape[0] )
-  enc_in, dec_out, poses3d = enc_in[idx, :], dec_out[idx, :], poses3d[idx, :]
+  #idx = np.random.permutation( enc_in.shape[0] )
+  enc_in, dec_out, poses3d = enc_in[330:, :], dec_out[330:, :], poses3d[330:, :]
 
   # Visualize random samples
   import matplotlib.gridspec as gridspec
 
   # 1080p	= 1,920 x 1,080
-  fig = plt.figure( figsize=(19.2, 10.8) )
+  fig = matplotlib.pyplot.figure( figsize=(19.2, 10.8) )
 
   gs1 = gridspec.GridSpec(5, 9) # 5 rows, 9 columns
   gs1.update(wspace=-0.00, hspace=0.05) # set the spacing between axes.
-  plt.axis('off')
+  matplotlib.pyplot.axis('off')
 
   subplot_idx, exidx = 1, 1
   nsamples = 15
+  matrices = []
   for i in np.arange( nsamples ):
 
     # Plot 2d pose
-    ax1 = plt.subplot(gs1[subplot_idx-1])
+    ax1 = matplotlib.pyplot.subplot(gs1[subplot_idx-1])
     p2d = enc_in[exidx,:]
     viz.show2Dpose( p2d, ax1 )
     ax1.invert_yaxis()
 
     # Plot 3d gt
-    ax2 = plt.subplot(gs1[subplot_idx], projection='3d')
+    ax2 = matplotlib.pyplot.subplot(gs1[subplot_idx], projection='3d')
     p3d = dec_out[exidx,:]
     viz.show3Dpose( p3d, ax2 )
 
     # Plot 3d predictions
-    ax3 = plt.subplot(gs1[subplot_idx+1], projection='3d')
+    ax3 = matplotlib.pyplot.subplot(gs1[subplot_idx+1], projection='3d')
     p3d = poses3d[exidx,:]
     viz.show3Dpose( p3d, ax3, lcolor="#9b59b6", rcolor="#2ecc71" )
+
+    matrices.append(vis.convert_to_matrices(p3d, ax3))
 
     exidx = exidx + 1
     subplot_idx = subplot_idx + 3
 
-  plt.show()
+  #Turn matrices into an animation
+  indicies = [6,7,7,7,8,9,10,11,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,14,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,3,4,5,5,0,1,2,2]
+  
+  template = Collada("input.dae")
+
+  #For each animation bone
+  for i in range(indicies):
+    key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-output-transform'
+    index = indicies[i]
+    #Create matrix float source
+    matrix_list = [x for j in range(len(matrices)) for row in  matrices[j][index] for x in row]
+    template.animations[i][key] = FloatSource(matrix_list)
+
+    #Set animation timing
+    key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-input'
+    timings = [0.033333*j for j in range(len(matrices))]
+    template.animations[i][key] = timings
+
+    #Set animation labels
+    key = template.animations[i].__dict__["id"][:-4] + 'Interpolations' 
+    labels = [u'LINEAR' for j in range(len(matrices))]
+    template.animations[i][key] = labels
+
+  template.save("output.dae")
+
+  matplotlib.pyplot.show()
+  matplotlib.pyplot.savefig('tessstttyyy.png', dpi=100)
+
 
 def main(_):
   if FLAGS.sample:

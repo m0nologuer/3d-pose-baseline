@@ -7,6 +7,70 @@ import numpy as np
 import h5py
 import os
 from mpl_toolkits.mplot3d import Axes3D
+import numpy.linalg
+import collada
+
+def save_pose(channels): # blue, orange
+  """
+  Represent a 3d skeleton
+
+  Args
+    channels: 96x1 vector. The pose to plot.
+  Returns
+    Nothing. Draws on ax.
+  """
+
+  assert channels.size == len(data_utils.H36M_NAMES)*3, "channels should have 96 entries, it has %d instead" % channels.size
+  vals = np.reshape( channels, (len(data_utils.H36M_NAMES), -1) )
+
+  I   = np.array([1,2,3,1,7,8,1, 13,14,15,14,18,19,14,26,27])-1 # start points
+  J   = np.array([2,3,4,7,8,9,13,14,15,16,18,19,20,26,27,28])-1 # end points
+  LR  = np.array([1,1,1,0,0,0,0, 0, 0, 0, 0, 0, 0, 1, 1, 1], dtype=bool)
+
+  # Make connection matrix
+  for i in np.arange( len(I) ):
+    x, y, z = [np.array( [vals[I[i], j], vals[J[i], j]] ) for j in range(3)]
+    ax.plot(x, y, z, lw=2, c=lcolor if LR[i] else rcolor)
+
+
+def convert_to_matrices(channels, default_channels):
+  vals = np.reshape( channels, (len(data_utils.H36M_NAMES), -1) )
+  default_vals = np.reshape( default_channels, (len(data_utils.H36M_NAMES), -1) )
+
+  I   = np.array([1,2,3,1,7,8,1, 13,14,15,14,18,19,14,26,27])-1 # start points
+  J   = np.array([2,3,4,7,8,9,13,14,15,16,18,19,20,26,27,28])-1 # end points
+  LR  = np.array([1,1,1,0,0,0,0, 0, 0, 0, 0, 0, 0, 1, 1, 1], dtype=bool)
+  
+  matrices = []
+
+  for i in np.arange( len(I) ):
+    #Get the transformations
+    positions = [[vals[I[i], j], vals[J[i], j]] for j in range(3)]
+    default_positions = [[default_vals[I[i], j], default_vals[J[i], j]] for j in range(3)]
+    
+    #Change the format
+    pos = [x[0] for x in positions]
+    pos_def = [x[0] for x in default_positions]
+
+    pos1 = [x[1] for x in positions]
+    pos1_def = [x[1] for x in default_positions]
+
+    #Calculate rotation matrix
+    P = np.array([pos,pos1]).transpose()
+    Q = np.array([pos_def,pos1_def]).transpose()
+    M = Q.dot(numpy.linalg.pinv(P))
+
+    #Calculate translation
+    rotated_pos = M.dot(np.array(pos))
+    offset = np.array(pos_def) - rotated_pos
+
+    #Append offset to rotation
+    M = np.concatenate([M, np.reshape(offset, (-1,1))], axis=1)
+    M = np.concatenate([M, np.array([[0,0,0,1]])], axis=0)
+    matrices.append(M)
+
+  return M
+
 
 def show3Dpose(channels, ax, lcolor="#3498db", rcolor="#e74c3c", add_labels=False): # blue, orange
   """
