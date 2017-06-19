@@ -546,7 +546,7 @@ def sample():
     index = indicies[i]
     #Create matrix float source
     matrix_list = [x for j in range(len(matrices)) for row in  matrices[j][index] for x in row]
-    template.animations[i][key] = FloatSource(matrix_list)
+    template.animations[i][key] = matrix_list
 
     #Set animation timing
     key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-input'
