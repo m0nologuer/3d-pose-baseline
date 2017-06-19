@@ -69,7 +69,7 @@ def convert_to_matrices(channels, default_channels):
     M = np.concatenate([M, np.array([[0,0,0,1]])], axis=0)
     matrices.append(M)
 
-  return M
+  return matrices
 
 
 def show3Dpose(channels, ax, lcolor="#3498db", rcolor="#e74c3c", add_labels=False): # blue, orange

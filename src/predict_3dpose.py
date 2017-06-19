@@ -537,6 +537,8 @@ def sample():
     exidx = exidx + 1
     subplot_idx = subplot_idx + 3
 
+
+  #Matrices [1...nsamples][1..max(indicies)]
   #Turn matrices into an animation
   indicies = [6,7,7,7,8,9,10,11,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,14,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,3,4,5,5,0,1,2,2]
   
