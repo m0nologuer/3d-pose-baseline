@@ -550,17 +550,17 @@ def sample():
     index = indicies[i]
     #Create matrix float source
     matrix_list = [x for j in range(len(matrices)) for row in  matrices[j][index] for x in row]
-    template.animations[i][key] = matrix_list
+    template.animations[i].sourceById[key] = matrix_list
 
     #Set animation timing
     key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-input'
     timings = [0.033333*j for j in range(len(matrices))]
-    template.animations[i][key] = timings
+    template.animations[i].sourceById[key] = timings
 
     #Set animation labels
     key = template.animations[i].__dict__["id"][:-4] + 'Interpolations' 
     labels = [u'LINEAR' for j in range(len(matrices))]
-    template.animations[i][key] = labels
+    template.animations[i].sourceById[key] = labels
 
   template.save("output.dae")
 
