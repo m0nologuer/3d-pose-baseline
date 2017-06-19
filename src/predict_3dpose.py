@@ -530,7 +530,7 @@ def sample():
     p3d = poses3d[exidx,:]
     viz.show3Dpose( p3d, ax3, lcolor="#9b59b6", rcolor="#2ecc71" )
 
-    matrices.append(vis.convert_to_matrices(p3d, ax3))
+    matrices.append(viz.convert_to_matrices(p3d, ax3))
 
     exidx = exidx + 1
     subplot_idx = subplot_idx + 3
