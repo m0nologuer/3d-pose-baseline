@@ -562,7 +562,7 @@ def sample():
     labels = [u'LINEAR' for j in range(len(matrices))]
     template.animations[i].sourceById[key] = labels
 
-  template.save("output.dae")
+  template.write("output.dae")
 
   matplotlib.pyplot.show()
   matplotlib.pyplot.savefig('tessstttyyy.png', dpi=100)
