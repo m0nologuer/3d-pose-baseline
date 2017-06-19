@@ -543,7 +543,7 @@ def sample():
   template = Collada("input.dae")
 
   #For each animation bone
-  for i in range(indicies):
+  for i in range(len(indicies)):
     key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-output-transform'
     index = indicies[i]
     #Create matrix float source
