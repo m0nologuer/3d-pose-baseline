@@ -548,7 +548,7 @@ def sample():
   for i in range(len(indicies)):
     key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-output-transform'
     index = indicies[i]
-    #Create matrix float source
+    #Create matrix float source across all timesteps
     matrix_list = [x for j in range(len(matrices)) for row in  matrices[j][index] for x in row]
     template.animations[i].sourceById[key] = matrix_list
 
@@ -556,6 +556,7 @@ def sample():
     key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-input'
     timings = [0.033333*j for j in range(len(matrices))]
     template.animations[i].sourceById[key] = timings
+    print(template.animations[i].sourceById[key])
 
     #Set animation labels
     key = template.animations[i].__dict__["id"][:-4] + 'Interpolations' 
