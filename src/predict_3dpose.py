@@ -549,17 +549,18 @@ def sample():
     key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-output-transform'
     index = indicies[i]
     #Create matrix float source across all timesteps
-    matrix_list = [x for j in range(len(matrices)) for row in  matrices[j][index] for x in row]
+    matrix_list = [x for j in range(nsamples) for row in  matrices[j][index] for x in row]
     template.animations[i].sourceById[key].data = np.array(matrix_list)
+    print key, matrix_list
 
     #Set animation timing
     key = template.animations[i].__dict__["id"][:-4] + 'Matrix-animation-input'
-    timings = [0.0033333*j for j in range(len(matrices))]
+    timings = [0.033333*j for j in range(nsamples)]
     template.animations[i].sourceById[key].data = np.array(timings)
 
     #Set animation labels
     key = template.animations[i].__dict__["id"][:-4] + 'Interpolations' 
-    labels = [u'LINEAR' for j in range(len(matrices))]
+    labels = [u'LINEAR' for j in range(nsamples)]
     template.animations[i].sourceById[key].data = np.array(labels)
 
   template.write("output.dae")
